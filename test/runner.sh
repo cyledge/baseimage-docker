@@ -9,34 +9,32 @@ function abort()
 
 function cleanup()
 {
-	echo " --> Stopping container"
-	docker stop $ID >/dev/null
-	docker rm $ID >/dev/null
+  if [ -n "$ID" ]; then
+    echo " --> Stopping container"
+    docker stop -t=10 $ID &>/dev/null
+    echo " --> Destroying container"
+    docker rm $ID >/dev/null
+  fi
 }
 
+NAME=${NAME:-cyledge/base}
+VERSION=${VERSION:-latest}
 PWD=`pwd`
-
-echo " --> Starting insecure container"
-ID=`docker run -d -v $PWD/test:/test $NAME:$VERSION /sbin/my_init --enable-insecure-key`
-sleep 1
-
-echo " --> Obtaining IP"
-IP=`docker inspect $ID | grep IPAddress | sed -e 's/.*: "//; s/".*//'`
-if [[ "$IP" = "" ]]; then
-	abort "Unable to obtain container IP"
-fi
+STARTUP_DELAY=${STARTUP_DELAY:-5}
 
 trap cleanup EXIT
 
-echo " --> Enabling SSH in the container"
-docker exec -t -i $ID /etc/my_init.d/00_regen_ssh_host_keys.sh -f
-docker exec -t -i $ID rm /etc/service/sshd/down
-docker exec -t -i $ID sv start /etc/service/sshd
-sleep 1
+echo " --> Starting container"
+ID=`docker run -d -v $PWD/test:/test $NAME:$VERSION /sbin/my_init`
+echo " --> Waiting $STARTUP_DELAY sec. to let to container start up it's services"
+sleep $STARTUP_DELAY
 
-echo " --> Logging into container and running tests"
-cp image/services/sshd/keys/insecure_key /tmp/insecure_key
-chmod 600 /tmp/insecure_key
-sleep 1 # Give container some more time to start up.
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /tmp/insecure_key root@$IP \
-	/bin/bash /test/test.sh
+echo " --> Test if container is running"
+docker inspect $ID &> /dev/null
+status=$?
+if [ "$status" != "0" ]; then
+  abort "FAIL"
+fi
+
+echo " --> Testing if all defined services are running in container"
+docker exec $ID /bin/bash -c /test/test.sh

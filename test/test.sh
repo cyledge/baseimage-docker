@@ -1,22 +1,24 @@
 #!/bin/bash
 set -o pipefail
 
-function ok()
-{
-	echo "  OK"
-}
+red='\e[1;31m' # Red
+green='\e[0;32m' # Green
+reset='\e[0m'    # Text Reset
 
-function fail()
-{
-	echo "  FAIL"
-	exit 1
-}
+services_okay=0
+for s in /etc/service/*; do
 
-echo "Checking whether all services are running..."
-services=`sv status /etc/service/*`
-status=$?
-if [[ "$status" != 0 || "$services" = "" || "$services" =~ down ]]; then
-	fail
-else
-	ok
+  service_name=$(basename $s)
+  service_status=$(sv status $s)
+  result=$?
+  if [[ "$result" != 0 || "$service_status" = "" || "$service_status" =~ down ]]; then
+	  echo -e "     Service $service_name: ${red}FAIL${reset}"
+	  services_okay=1
+  else
+	  echo -e "     Service $service_name: ${green}OKAY${reset}"
+  fi
+  
+done
+if [ "$services_okay" != "0" ]; then
+  exit 1
 fi
