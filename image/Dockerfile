@@ -1,11 +1,11 @@
 FROM ubuntu:14.04
-MAINTAINER Phusion <info@phusion.nl>
+MAINTAINER cyLEDGE <dev@cyledge.com>
 
-ADD . /bd_build
+ADD . /build
 
-RUN /bd_build/prepare.sh && \
-	/bd_build/system_services.sh && \
-	/bd_build/utilities.sh && \
-	/bd_build/cleanup.sh
+RUN /build/prepare.sh && \
+	/build/system_services.sh && \
+	/build/utilities.sh && \
+	/build/cleanup.sh
 
 CMD ["/sbin/my_init"]
