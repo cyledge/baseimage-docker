@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
-set -x
 
 ## Install init process.
 cp /build/bin/my_init /sbin/
@@ -17,7 +16,7 @@ chmod 640 /etc/container_environment.sh /etc/container_environment.json
 ln -s /etc/container_environment.sh /etc/profile.d/
 
 ## Install runit.
-$minimal_apt_get_install runit
+apt_install runit
 
 ## Install a syslog daemon and logrotate.
 [ "$DISABLE_SYSLOG" -eq 0 ] && /build/services/syslog-ng/syslog-ng.sh || true

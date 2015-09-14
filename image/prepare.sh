@@ -1,7 +1,33 @@
 #!/bin/bash
+
+#
+# Use this script to prepare a docker build process.
+# This script expects /build/cleanup.sh to be run at the end of the build process.
+#
+# Usage in base image based Dockerfile:
+#
+#     FROM cyledge/base
+#     ...
+#     <your container build code here>
+#     ...
+#     RUN /build/cleanup.sh
+#     CMD ["/sbin/my_init"]
+#
+#
+#
+# Usage in plain Dockerfile:
+#
+#     ADD . /build
+#     RUN /build/prepare.sh
+#     ...
+#     <your container build code here>
+#     ...
+#     RUN /build/cleanup.sh
+#
+
+
 set -e
 . /build/buildconfig
-set -x
 
 ## Temporarily disable dpkg fsync to make building faster.
 if [[ ! -e /etc/dpkg/dpkg.cfg.d/docker-apt-speedup ]]; then
@@ -18,7 +44,9 @@ echo -n no > /etc/container_environment/INITRD
 ## Enable Ubuntu Universe and Multiverse.
 sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
-apt-get update
+
+echo "loading APT catalog..."
+apt_update
 
 ## Fix some issues with APT packages.
 ## See https://github.com/dotcloud/docker/issues/1024
@@ -32,17 +60,20 @@ ln -sf /bin/true /sbin/initctl
 dpkg-divert --local --rename --add /usr/bin/ischroot
 ln -sf /bin/true /usr/bin/ischroot
 
-## Install HTTPS support for APT.
-$minimal_apt_get_install apt-transport-https ca-certificates
+echo "purging ubuntu base packages not used in a container..."
+apt_remove --force-yes eject ntpdate resolvconf openssh-client openssh-sftp-server openssh-server
 
-## Install add-apt-repository
-$minimal_apt_get_install software-properties-common
+
+echo "installing apt tools useful to build images..."
+apt_install apt-transport-https ca-certificates software-properties-common
+
 
 ## Upgrade all packages.
-apt-get dist-upgrade -y --no-install-recommends
+echo "upgrading all available packages..."
+apt_upgrade
 
 ## Fix locale.
-$minimal_apt_get_install language-pack-en
+apt_install language-pack-en
 locale-gen en_US
 update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
 echo -n en_US.UTF-8 > /etc/container_environment/LANG

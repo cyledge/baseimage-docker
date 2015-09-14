@@ -1,0 +1,103 @@
+#!/bin/bash
+
+now() {
+  echo `date +%F`
+}
+
+status () {
+  echo " ---> ${@}"
+}
+
+error() {
+  echo "$(now) ERROR: ${@}" >&2
+}
+
+warn() {
+  echo "$(now) WARNING: ${@}" >&2
+}
+
+
+##
+# Log a message to syslog
+#
+log() {
+  echo -e "${@}" | logger
+}
+
+
+##
+# Check if a path is writable for a certain user.
+#
+# Usage:
+#  write_access user path
+#  * user: the user name who may have write access.
+#  * path: the patch to check.
+#
+write_access() {
+  local user=$1
+  local path=$2
+  
+  if [ ! -d $path -a ! -f $path ]; then
+    echo 0
+  fi
+  
+  local INFO=( $(stat -L -c "%a %G %U" $path) )
+  local PERM=${INFO[0]}
+  local GROUP=${INFO[1]}
+  local OWNER=${INFO[2]}
+
+  local ACCESS=0
+  if (( ($PERM & 0002) != 0 )); then
+    # Everyone has write access
+    ACCESS=1
+  elif (( ($PERM & 0020) != 0 )); then
+    # Some group has write access.
+    # Is user in that group?
+    gs=( $(groups $user) )
+    for g in "${gs[@]}"; do
+      if [[ $GROUP == $g ]]; then
+	ACCESS=1
+	break
+      fi
+    done
+  elif (( ($PERM & 0200) != 0 )); then 
+    # The owner has write access.
+    # Does the user own the file?
+    [[ $user == $OWNER ]] && ACCESS=1
+  fi
+  
+  echo $ACCESS
+}
+
+
+
+##
+# Output contents of a file to stdout (live and in background)
+#
+# Usage:
+#  trace_logfile path [owner]
+#  * path: log file to watch/create
+#  * owner: owner of log file (will be set via chown, optional)
+#
+trace_logfile() {
+  #
+  # hack to bring logging output to stdout:
+  #
+  LOG_FILE=$1
+  OWNER="$2"
+  if [ -f $LOG_FILE ]; then
+    truncate --size 0 $LOG_FILE
+  else
+    touch $LOG_FILE
+  fi
+  tail --pid $$ -F $LOG_FILE &
+  
+  if [ -n $OWNER ]; then
+    chown $OWNER $LOG_FILE
+  fi
+}
+
+
+
+
+
