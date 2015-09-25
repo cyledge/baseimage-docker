@@ -6,6 +6,16 @@ shopt -s expand_aliases
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+apt_is_installed() { dpkg-query -Wf'${db:Status-abbrev}' "$1" 2>/dev/null | grep -q '^i'; }
+
+apt_remove_if_installed() {
+  for pkg in $1; do
+    if ! apt_is_installed $pkg; then
+      dpkg --purge $pkg
+    fi
+  done
+}
+
 alias apt_update='apt-get update'
 alias apt_install='apt-get install -y --no-install-recommends'
 alias apt_remove='apt-get purge -y'
