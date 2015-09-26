@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
-set -x
 
 $minimal_apt_get_install cron
 mkdir /etc/service/cron
