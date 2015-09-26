@@ -66,9 +66,6 @@ echo "purging ubuntu base packages not used in a container..."
 apt_remove_if_installed eject
 apt_remove_if_installed ntpdate
 apt_remove_if_installed resolvconf
-apt_remove_if_installed openssh-client
-apt_remove_if_installed openssh-sftp-server
-apt_remove_if_installed openssh-server
 
 
 echo "installing apt tools useful to build images..."
