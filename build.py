@@ -8,6 +8,11 @@ from docker import Client
 from tempfile import gettempdir
 
 
+
+tmp_build_dir="%s/docker_build_dir" % gettempdir()
+
+
+
 def setup_logging():
   
   root_handler = logging.StreamHandler(sys.stdout)
@@ -94,7 +99,8 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile"):
     path=build_dir,
     dockerfile=dockerfile,
     tag=tag,
-    stream=True
+    stream=True,
+    quiet=True
     )
 
   last_line = None
@@ -114,9 +120,73 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile"):
   else:
     return match.group(1)
     
+
+
+def docker_push( image, tag='latest' ):
+  
+  
+
+  logger = logging.getLogger("docker")
+  logging.info("Pushing docker image %s:%s" % (image, tag))
+  
+  #dockerfile = "%s/%s" % (build_dir, dockerfile)
+  
+  c = Client(base_url='unix://var/run/docker.sock')
+  docker_output_stream = c.push(
+    image,
+    tag=tag,
+    stream=True
+    )
+
+  pushed_images = []
+  last_line = ""
+  for line in docker_output_stream:
+    output = json.loads(line.decode('UTF-8'))
+    if "status" in output:
+      if output["status"] == "Image already exists":
+        continue
+      logger.debug("D: %s" % output["status"].rstrip())
+      last_line = output["status"]
+    if "error" in output:
+      logger.error(output["error"].rstrip())
+      #logger.error(output["errorDetail"])
+    if not "status" in output:
+      logger.debug("unknown output: %s" % output)
+  
+  srch = r'%s: digest: (sha256:[0-9a-fA-F]+) size: [\d]+' % re.escape(tag)
+  match = re.search(srch, last_line)
+  if not match:
+    print("last line: " + last_line)
+    raise RuntimeError()
+  else:
+    return match.group(1)
+ 
+
+
+
+def build_base_image( build_dir, ubuntu_release ):
+  
+  image_tag = "cyledge/base:%s" % ubuntu_release
+  
+  try:
+    create_build_copy(build_dir, tmp_build_dir)
+    dockerfile_set_FROM(tmp_dockerfile, "ubuntu", ubuntu_release)
+    real_from = dockerfile_get_FROM(tmp_dockerfile)
+    
+    docker_build(tmp_build_dir, tag=image_tag)
+    
+    logging.info("build complete")
+  except Exception as e:
+    logging.error("faild to build image")
+    raise
+  finally:
+    remove_build_copy(tmp_build_dir)
   
 
 
+def push_base_image( ubuntu_release ):
+  
+  docker_push( "cyledge/base", ubuntu_release )
 
 
 
@@ -137,13 +207,13 @@ if __name__ == '__main__':
   parser.add_argument('--dir', '-d', default=default_build_dir, help="Build directory to use (default: ./image)")
   parser.add_argument('--release', '-r', default="14.04", help="Ubuntu release to build from (default: 14.04)")
   
+  parser.add_argument('command', choices=['build', 'push'], default="build", nargs='?',
+		      help="Command to run (default: build)")
+  
   args = parser.parse_args()
   
   
-  tmp_build_dir="%s/docker_build_dir" % gettempdir()
   tmp_dockerfile = "%s/Dockerfile" % tmp_build_dir
-  
-  image_tag = "cyledge/base:%s" % args.release
   
   if os.path.exists(tmp_build_dir):
     logging.error("Temporary build dir already exists. Maybe another build process is currently running..");
@@ -158,20 +228,14 @@ if __name__ == '__main__':
     logging.error("Build directory does not contain a Dockerfile")
     sys.exit(1)
   
-  try:
-    create_build_copy(args.dir, tmp_build_dir)
-    dockerfile_set_FROM(tmp_dockerfile, "ubuntu", args.release)
-    real_from = dockerfile_get_FROM(tmp_dockerfile)
-    
-    docker_build(tmp_build_dir, tag=image_tag)
-    
-    logging.info("build complete")
-  except Exception as e:
-    logging.error("faild to build image")
-    raise
-  finally:
-    remove_build_copy(tmp_build_dir)
   
+  if args.command == "build":
+    build_base_image( args.dir, args.release )
+  elif args.command == "push":
+    push_base_image( args.release )
+  else:
+    logging.error("Unknown command: %s" % args.command)
+    sys.exit(1)
   
   
   
