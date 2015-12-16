@@ -87,10 +87,16 @@ def dockerfile_set_FROM( dockerfile, image, tag=None ):
 
 
 
-def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile"):
+def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_first=True, use_cache=True):
 
   logger = logging.getLogger("docker")
   logging.info("Building docker image %s" % tag)
+  
+  if pull_first:
+    logging.debug("Pulling FROM image first")
+  if not use_cache:
+    logging.debug("Not using cache")
+  
   
   #dockerfile = "%s/%s" % (build_dir, dockerfile)
   
@@ -100,7 +106,9 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile"):
     dockerfile=dockerfile,
     tag=tag,
     stream=True,
-    quiet=True
+    quiet=True,
+    pull=pull_first,
+    nocache= not use_cache
     )
 
   last_line = None
@@ -164,7 +172,7 @@ def docker_push( image, tag='latest' ):
 
 
 
-def build_base_image( build_dir, ubuntu_release ):
+def build_base_image( build_dir, ubuntu_release, pull_first=True ):
   
   image_tag = "cyledge/base:%s" % ubuntu_release
   
@@ -173,7 +181,7 @@ def build_base_image( build_dir, ubuntu_release ):
     dockerfile_set_FROM(tmp_dockerfile, "ubuntu", ubuntu_release)
     real_from = dockerfile_get_FROM(tmp_dockerfile)
     
-    docker_build(tmp_build_dir, tag=image_tag)
+    docker_build(tmp_build_dir, tag=image_tag, pull_first=pull_first)
     
     logging.info("build complete")
   except Exception as e:
@@ -206,6 +214,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Docker image builder.')
   parser.add_argument('--dir', '-d', default=default_build_dir, help="Build directory to use (default: ./image)")
   parser.add_argument('--release', '-r', default="14.04", help="Ubuntu release to build from (default: 14.04)")
+  parser.add_argument('--no-pull', dest='pull', action='store_false', help="Prevent pull of Ubuntu release image before build")
   
   parser.add_argument('command', choices=['build', 'push'], default="build", nargs='?',
 		      help="Command to run (default: build)")
@@ -230,7 +239,7 @@ if __name__ == '__main__':
   
   
   if args.command == "build":
-    build_base_image( args.dir, args.release )
+    build_base_image( args.dir, args.release, pull_first=args.pull )
   elif args.command == "push":
     push_base_image( args.release )
   else:
