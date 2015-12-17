@@ -184,6 +184,8 @@ def build_base_image( build_dir, ubuntu_release, pull_first=True ):
     docker_build(tmp_build_dir, tag=image_tag, pull_first=pull_first)
     
     logging.info("build complete")
+  except RuntimeError as e:
+    logging.error("faild to build image")
   except Exception as e:
     logging.error("faild to build image")
     raise
