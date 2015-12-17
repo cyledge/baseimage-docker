@@ -32,7 +32,11 @@ set -e
 . /build/buildconfig
 
 # remove additional apt packages - they won't be used after setup.
-apt_remove apt-transport-https apt-utils libapt-inst1.5 python-apt-common python3-apt
+apt_remove apt-transport-https apt-utils python-apt-common python3-apt
+# dependen on Ubuntu release:
+apt_remove_if_installed libapt-inst1.4
+apt_remove_if_installed libapt-inst1.5
+
 
 # clean apt caches
 apt-get clean -y
