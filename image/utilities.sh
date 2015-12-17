@@ -3,6 +3,11 @@ set -e
 . /build/buildconfig
 
 
+## Add THE "bash library" into the system
+mkdir /usr/local/share/cyLEDGE
+cp /build/bash-library /usr/local/share/cyLEDGE/bash-library
+
+
 ## Switch default shell to bash
 ln -sf /bin/bash /bin/sh
 
