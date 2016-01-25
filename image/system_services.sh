@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
+. /build/bash-library
+
+
+status "Setting up runit & my_init..."
 
 ## Install init process.
 cp /build/bin/my_init /sbin/
