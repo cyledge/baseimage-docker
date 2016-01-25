@@ -46,7 +46,6 @@ echo -n no > /etc/container_environment/INITRD
 sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
 
-
 status "Loading APT catalog..."
 apt_update
 
@@ -64,7 +63,7 @@ dpkg-divert --local --rename --add /usr/bin/ischroot
 ln -sf /bin/true /usr/bin/ischroot
 
 
-Status "Purging ubuntu base packages not used in a container..."
+status "Purging ubuntu base packages not used in a container..."
 apt_remove_if_installed eject
 apt_remove_if_installed ntpdate
 apt_remove_if_installed resolvconf

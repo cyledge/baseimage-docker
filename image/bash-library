@@ -4,7 +4,7 @@ now() {
   echo `date +%F`
 }
 
-status () {
+status() {
   echo " ---> ${@}"
 }
 
