@@ -1,5 +1,5 @@
 #!/bin/sh
-. /opt/cyLEDGE-container/bash-library
+. /usr/local/share/cyLEDGE/bash-library
 
 status "starting cron daemon"
 exec /usr/sbin/cron -f
