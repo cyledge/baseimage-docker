@@ -9,4 +9,4 @@ if [ ! -S /dev/log ]; then rm -f /dev/log; fi
 if [ ! -S /var/lib/syslog-ng/syslog-ng.ctl ]; then rm -f /var/lib/syslog-ng/syslog-ng.ctl; fi
 
 status "starting syslog-ng daemon"
-syslog-ng -F --pidfile /run/syslog-ng.pid --no-caps
+syslog-ng -F --cfgfile=$SYSLOG_CONF --pidfile /run/syslog-ng.pid --no-caps
