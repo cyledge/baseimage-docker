@@ -9,7 +9,7 @@ apt_is_installed() { dpkg -l $1 &>/dev/null; }
 
 apt_remove_if_installed() {
   for pkg in $1; do
-    apt_is_installed $pkg && dpkg --purge $pkg || true
+    apt_is_installed $pkg && apt-get purge $pkg || true
   done
 }
 
