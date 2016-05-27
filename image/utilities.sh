@@ -22,3 +22,5 @@ cp /build/bin/setuser /sbin/setuser
 ## Add the host ip detector as startup script
 cp /build/bin/detect-docker-host-ip /etc/my_init.d/
 
+## Set python executable
+ln -s /usr/bin/python3 /usr/bin/python
