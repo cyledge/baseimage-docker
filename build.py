@@ -34,6 +34,11 @@ def setup_logging():
   #docker_logger.addHandler(ch)
   #docker_logger.setLevel(logging.DEBUG)
 
+def set_logging_level( level ):
+
+  root_logger = logging.getLogger();
+  root_logger.setLevel(level)
+
 
 
 
@@ -87,7 +92,7 @@ def dockerfile_set_FROM( dockerfile, image, tag=None ):
 
 
 
-def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_first=True, use_cache=True):
+def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_first=True, use_cache=True, quiet=False):
 
   logger = logging.getLogger("docker")
   logging.info("Building docker image %s" % tag)
@@ -106,7 +111,7 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_f
     dockerfile=dockerfile,
     tag=tag,
     stream=True,
-    quiet=True,
+    quiet=quiet,
     pull=pull_first,
     nocache= not use_cache
     )
@@ -121,7 +126,10 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_f
       logger.error(output["error"].rstrip())
       #logger.error(output["errorDetail"])
     
-  srch = r'Successfully built ([0-9a-f]+)'
+  if quiet:
+    srch = r'sha256:([0-9a-f]{12})[0-9a-f]+'
+  else:
+    srch = r'Successfully built ([0-9a-f]{12})'
   match = re.search(srch, last_line)
   if not match:
     raise RuntimeError()
@@ -131,8 +139,7 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_f
 
 
 def docker_push( image, tag='latest' ):
-  
-  
+
 
   logger = logging.getLogger("docker")
   logging.info("Pushing docker image %s:%s" % (image, tag))
@@ -164,7 +171,6 @@ def docker_push( image, tag='latest' ):
   srch = r'%s: digest: (sha256:[0-9a-fA-F]+) size: [\d]+' % re.escape(tag)
   match = re.search(srch, last_line)
   if not match:
-    print("last line: " + last_line)
     raise RuntimeError()
   else:
     return match.group(1)
@@ -172,7 +178,7 @@ def docker_push( image, tag='latest' ):
 
 
 
-def build_base_image( build_dir, ubuntu_release, pull_first=True ):
+def build_base_image( build_dir, ubuntu_release, pull_first=True, quiet=False ):
   
   image_tag = "cyledge/base:%s" % ubuntu_release
   
@@ -181,13 +187,17 @@ def build_base_image( build_dir, ubuntu_release, pull_first=True ):
     dockerfile_set_FROM(tmp_dockerfile, "ubuntu", ubuntu_release)
     real_from = dockerfile_get_FROM(tmp_dockerfile)
     
-    docker_build(tmp_build_dir, tag=image_tag, pull_first=pull_first)
+    docker_build(tmp_build_dir, tag=image_tag, pull_first=pull_first, quiet=quiet)
     
     logging.info("build complete")
   except RuntimeError as e:
+    import traceback
     logging.error("faild to build image")
+    traceback.print_tb(e.__traceback__)
   except Exception as e:
+    import traceback
     logging.error("faild to build image")
+    traceback.print_tb(e.__traceback__)
     raise
   finally:
     remove_build_copy(tmp_build_dir)
@@ -217,12 +227,16 @@ if __name__ == '__main__':
   parser.add_argument('--dir', '-d', default=default_build_dir, help="Build directory to use (default: ./image)")
   parser.add_argument('--release', '-r', default="14.04", help="Ubuntu release to build from (default: 14.04)")
   parser.add_argument('--no-pull', dest='pull', action='store_false', help="Prevent pull of Ubuntu release image before build")
+  parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', help="Disable verbose output during docker build")
   
   parser.add_argument('command', choices=['build', 'push'], default="build", nargs='?',
 		      help="Command to run (default: build)")
   
   args = parser.parse_args()
   
+  
+  if args.quiet:
+    set_logging_level( logging.INFO )
   
   tmp_dockerfile = "%s/Dockerfile" % tmp_build_dir
   
@@ -241,7 +255,7 @@ if __name__ == '__main__':
   
   
   if args.command == "build":
-    build_base_image( args.dir, args.release, pull_first=args.pull )
+    build_base_image( args.dir, args.release, pull_first=args.pull, quiet=args.quiet )
   elif args.command == "push":
     push_base_image( args.release )
   else:
