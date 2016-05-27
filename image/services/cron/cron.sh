@@ -2,7 +2,7 @@
 set -e
 . /build/buildconfig
 
-$minimal_apt_get_install cron
+apt_install cron
 mkdir /etc/service/cron
 chmod 600 /etc/crontab
 cp /build/services/cron/cron.runit /etc/service/cron/run
