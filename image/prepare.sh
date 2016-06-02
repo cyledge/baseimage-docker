@@ -29,6 +29,7 @@
 set -e
 . /build/buildconfig
 . /build/bash-library
+. /etc/lsb-release
 
 ## Temporarily disable dpkg fsync to make building faster.
 if [[ ! -e /etc/dpkg/dpkg.cfg.d/docker-apt-speedup ]]; then
@@ -77,8 +78,22 @@ apt_upgrade
 status "Installing apt tools useful to build images..."
 apt_install apt-transport-https ca-certificates software-properties-common
 
-## Install python3 (which is not installed by default in Ubuntu 12.04)
-apt_is_installed python3 && true || apt_install python3 python-anyjson
+
+if [ $DISTRIB_RELEASE == "12.04" ]
+then
+  ## Install python3 (which is not installed by default in Ubuntu 12.04)
+  apt_install python3 python-anyjson
+fi
+
+if [ $DISTRIB_RELEASE == "16.04" ]
+then
+  ## Mark python3 as installed (otherwise it would get purged by final cleanup since
+  ## it was installed as dependency of other packages)
+  apt_install python3
+  
+  ## command ip is not present in Ubuntu 16.04. But it's so handy!!
+  apt_install iproute2
+fi
 
 
 ## Fix locale.
