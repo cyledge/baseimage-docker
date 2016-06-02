@@ -38,7 +38,14 @@ write_access() {
   local path=$2
   
   if [ ! -d $path -a ! -f $path ]; then
-    echo 0
+    # file or directory does not exist
+    return 1
+  fi
+  
+  local uid=`id -u $user 2> /dev/null`
+  if [ ! $uid ]; then
+    # user does not exist
+    return 1
   fi
   
   local INFO=( $(stat -L -c "%a %G %U" $path) )
@@ -46,27 +53,29 @@ write_access() {
   local GROUP=${INFO[1]}
   local OWNER=${INFO[2]}
 
-  local ACCESS=0
-  if (( ($PERM & 0002) != 0 )); then
+  if (( ($PERM & 0002) == 0 )); then
     # Everyone has write access
-    ACCESS=1
-  elif (( ($PERM & 0020) != 0 )); then
+    return 0
+  fi
+  
+  if (( ($PERM & 0020) == 0 )); then
     # Some group has write access.
     # Is user in that group?
     gs=( $(groups $user) )
     for g in "${gs[@]}"; do
       if [[ $GROUP == $g ]]; then
-	ACCESS=1
-	break
+        return 0
       fi
     done
-  elif (( ($PERM & 0200) != 0 )); then 
-    # The owner has write access.
-    # Does the user own the file?
-    [[ $user == $OWNER ]] && ACCESS=1
   fi
   
-  [ $ACCESS == 1 ]
+  if (( ($PERM & 0200) == 0 )); then
+    # The owner has write access.
+    # Does the user own the file?
+    [[ $user == $OWNER ]] && return 0
+  fi
+  
+  return 1
 }
 
 
