@@ -13,13 +13,12 @@ cp $SYSLOG_NG_BUILD_PATH/check-syslog-ng.sh /etc/my_init.d/
 cp $SYSLOG_NG_BUILD_PATH/syslog-ng.conf /etc/syslog-ng/syslog-ng.conf
 
 #
-# In Ubuntu 12.04 no syslog user gets created by APT/dpkg
-# Let's create it manually
+# Create user syslog manually if not present
 #
-if [ $DISTRIB_RELEASE == "12.04" ]
+if ! id -u syslog &> /dev/null
 then
-  groupadd -r -g 104 syslog
-  useradd -r -M -l -u 101 -g 104 -s /bin/false syslog 
+  groupadd -r syslog
+  useradd -r -M -l -g syslog -s /bin/false syslog 
 fi
 
 #
