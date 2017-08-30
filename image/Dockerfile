@@ -1,14 +1,19 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER cyLEDGE <dev@cyledge.com>
 
 ADD . /build
 
-RUN /build/prepare.sh &&\
- /build/system_services.sh &&\
- /build/utilities.sh
+ENV DEBIAN_FRONTEND="noninteractive" \
+    INITRD="no"
 
-# Set (default) target host for syslog
-ENV FLUENT_HOST docker-host
-ENV FLUENT_SYSLOG_PORT 5141
-	
+RUN /build/bootstrap-base-image.sh
+
+ENV LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LC_ALL="en_US.UTF-8"
+
 CMD ["/sbin/my_init"]
+
+ONBUILD ARG IMAGE_BUILD_DEBUG=0
+ONBUILD ENV IMAGE_BUILD_DEBUG ${IMAGE_BUILD_DEBUG}
+

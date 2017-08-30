@@ -4,101 +4,49 @@
 # Use this script to prepare a docker build process.
 # This script expects /build/cleanup.sh to be run at the end of the build process.
 #
-# Usage in base image based Dockerfile:
+# Usage in cyledge/base based Dockerfile:
 #
 #     FROM cyledge/base
 #     ...
-#     <your container build code here>
-#     ...
-#     RUN /build/cleanup.sh
-#     CMD ["/sbin/my_init"]
-#
-#
-#
-# Usage in plain Dockerfile:
-#
-#     ADD . /build
 #     RUN /build/prepare.sh
 #     ...
 #     <your container build code here>
 #     ...
 #     RUN /build/cleanup.sh
 #
+#
 
 
 set -e
 . /build/buildconfig
-. /build/bash-library
+. /usr/local/share/cyLEDGE/bash-library
 . /etc/lsb-release
 
-## Temporarily disable dpkg fsync to make building faster.
-if [[ ! -e /etc/dpkg/dpkg.cfg.d/docker-apt-speedup ]]; then
-	echo force-unsafe-io > /etc/dpkg/dpkg.cfg.d/docker-apt-speedup
-fi
-
-## Prevent initramfs updates from trying to run grub and lilo.
-## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
-## http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=594189
-export INITRD=no
-mkdir -p /etc/container_environment
-echo -n no > /etc/container_environment/INITRD
 
 ## Enable Ubuntu Universe and Multiverse.
 sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
 
-status "Loading APT catalog..."
-apt_update
 
+if [ "$IMAGE_BUILD_DEBUG" -eq 0 ]; then
 
-## Fix some issues with APT packages.
-## See https://github.com/dotcloud/docker/issues/1024
-dpkg-divert --local --rename --add /sbin/initctl
-ln -sf /bin/true /sbin/initctl
+  status "Loading APT catalog..."
+  apt_update
 
-## Replace the 'ischroot' tool to make it always return true.
-## Prevent initscripts updates from breaking /dev/shm.
-## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
-## https://bugs.launchpad.net/launchpad/+bug/974584
-dpkg-divert --local --rename --add /usr/bin/ischroot
-ln -sf /bin/true /usr/bin/ischroot
+  status "Upgrading all available packages..."
+  apt_upgrade
 
+else
 
-status "Purging ubuntu base packages not used in a container..."
-apt_remove_if_installed eject
-apt_remove_if_installed ntpdate
-apt_remove_if_installed resolvconf
+  status "IMAGE_DEBUG enabled. Skipping ATP catalog loading..."
 
-
-## Upgrade all packages.
-status "Upgrading all available packages..."
-apt_upgrade
-
-
-status "Installing apt tools useful to build images..."
-apt_install apt-transport-https ca-certificates software-properties-common
-
-
-if [ $DISTRIB_RELEASE == "12.04" ]
-then
-  ## Install python3 (which is not installed by default in Ubuntu 12.04)
-  apt_install python3 python-anyjson
-fi
-
-if [ $DISTRIB_RELEASE == "16.04" ]
-then
-  ## Mark python3 as installed (otherwise it would get purged by final cleanup since
-  ## it was installed as dependency of other packages)
-  apt_install python3
-  
-  ## command ip is not present in Ubuntu 16.04. But it's so handy!!
-  apt_install iproute2
 fi
 
 
-## Fix locale.
-apt_install language-pack-en
-locale-gen en_US
-update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
-echo -n en_US.UTF-8 > /etc/container_environment/LANG
-echo -n en_US.UTF-8 > /etc/container_environment/LC_CTYPE
+
+
+## Install a syslog daemon and logrotate.
+[ "$IMAGE_DISABLE_SYSLOG" -eq 0 ] && /build/services/syslog-ng/syslog-ng.sh || true
+
+## Install cron daemon.
+[ "$IMAGE_DISABLE_CRON" -eq 0 ] && /build/services/cron/cron.sh || true

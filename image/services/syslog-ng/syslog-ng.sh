@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
+. /usr/local/share/cyLEDGE/bash-library
 . /etc/lsb-release
+
+status "Installing syslog-ng..."
 
 SYSLOG_NG_BUILD_PATH=/build/services/syslog-ng
 
@@ -31,3 +34,11 @@ then
 fi
 
 chown syslog:syslog /var/lib/syslog-ng
+
+# Set (default) target host for syslog
+if [ -z "$FLUENT_HOST" ]; then
+  set_container_env FLUENT_HOST docker-host
+fi
+if [ -z "$FLUENT_SYSLOG_PORT" ]; then
+  set_container_env FLUENT_SYSLOG_PORT 5141
+fi

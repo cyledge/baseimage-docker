@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+. /usr/local/share/cyLEDGE/bash-library
+
+
+CONTAINER_ID=$(cat /proc/self/cgroup | grep 'docker' | sed 's/^.*\///' | tail -n1 | cut -c 1-12)
+
+set_container_env 'CONTAINER_ID' $CONTAINER_ID

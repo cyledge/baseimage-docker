@@ -2,9 +2,6 @@
 
 shopt -s expand_aliases
 
-export LC_ALL=C
-export DEBIAN_FRONTEND=noninteractive
-
 apt_is_installed() { dpkg -l $1 &>/dev/null; }
 
 apt_remove_if_installed() {
@@ -13,10 +10,10 @@ apt_remove_if_installed() {
   done
 }
 
-alias apt_update='apt-get update'
-alias apt_install='apt-get install -y --no-install-recommends'
+alias apt_update='apt-get update -q'
+alias apt_install='apt-get install -y -q --no-install-recommends'
 alias apt_remove='apt-get purge -y'
-alias apt_upgrade='apt-get dist-upgrade -y --no-install-recommends'
+alias apt_upgrade='apt-get dist-upgrade -y --no-install-recommends -o Dpkg::Options::="--force-confold"'
 alias apt_add_ppa='apt-add-repository -y'
 
 

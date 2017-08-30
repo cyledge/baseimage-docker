@@ -3,33 +3,30 @@
 #
 # Use this script to finish a docker build process.
 # This script expects /build/prepare.sh to be run
-# before. (What's done automatically if this base image
-# is used.)
+# before.
 #
-# Usage in base image based Dockerfile:
+# Usage in cyledge/base based Dockerfile:
 #
 #     FROM cyledge/base
 #     ...
-#     <your container build code here>
-#     ...
-#     RUN /build/cleanup.sh
-#
-#
-#
-# Usage in plain Dockerfile:
-#
-#     ADD . /build
 #     RUN /build/prepare.sh
 #     ...
 #     <your container build code here>
 #     ...
 #     RUN /build/cleanup.sh
 #
+#
 
 
 # boilerplate
 set -e
 . /build/buildconfig
+. /usr/local/share/cyLEDGE/bash-library
+
+if [ "$IMAGE_BUILD_DEBUG" -ne 0 ]; then
+  status "IMAGE_DEBUG enabled. Skipping cleanup..."
+  exit 0
+fi
 
 # remove additional apt packages - they won't be used after setup.
 apt_remove apt-transport-https apt-utils python-apt-common python3-apt

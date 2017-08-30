@@ -2,6 +2,8 @@
 set -e
 . /build/buildconfig
 
+status "Installing cron..."
+
 apt_install cron
 mkdir /etc/service/cron
 chmod 600 /etc/crontab

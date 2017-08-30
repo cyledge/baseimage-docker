@@ -81,7 +81,7 @@ write_access() {
 
 
 ##
-# Output contents of a file to stdout (live and in background)
+# Output contents of a file to stdout (live and in background).
 #
 # Usage:
 #  trace_logfile path [owner]
@@ -107,6 +107,18 @@ trace_logfile() {
 }
 
 
+##
+# Set an environment variable of the container for within a running container.
+# Environment variables may be set *before* /sbin/my_init starts services. Otherwise
+# already running services may not see the new environment variables.
+#
+#
+set_container_env() {
+  VAR="$1"
+  VAL="$2"
+  echo "$VAL" > /etc/container_environment/$VAR
+  export $VAR="$VAL"
+}
 
 
 
