@@ -7,7 +7,7 @@ status "Installing cron..."
 apt_install cron
 mkdir /etc/service/cron
 chmod 600 /etc/crontab
-cp /build/services/cron/cron.runit /etc/service/cron/run
+cp /build/services/cron/run.sh /etc/service/cron/run
 
 ## Remove useless cron entries.
 # Checks for lost+found and scans for mtab.
