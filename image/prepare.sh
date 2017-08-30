@@ -46,7 +46,9 @@ fi
 
 
 ## Install a syslog daemon and logrotate.
+IMAGE_DISABLE_SYSLOG=${IMAGE_DISABLE_SYSLOG:-0}
 [ "$IMAGE_DISABLE_SYSLOG" -eq 0 ] && /build/services/syslog-ng/install.sh || true
 
 ## Install cron daemon.
+IMAGE_DISABLE_CRON=${IMAGE_DISABLE_CRON:-0}
 [ "$IMAGE_DISABLE_CRON" -eq 0 ] && /build/services/cron/install.sh || true

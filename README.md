@@ -18,3 +18,18 @@ Please dive into the nature of this image by reading the [README of phusion/base
 ## Building
 
 Please use (and maybe read through before) the `build.py` script to build this image. It handles rewriting of `Dockerfile` for different Ubuntu releases.
+
+
+## Syslog-ng
+
+The modified syslog-ng configuration logs either to stdout of the container or to a [fluentd](https://www.fluentd.org/) service.
+To control the logging destination set the env variable "LOG_TO" to either "stdout" (default, if not set) or to "fluent".
+
+To send logs to a fluentd service the env variables FLUENT_HOST and FLUENT_SYSLOG_PORT are used.
+Logs are sent as RFC5424 messages via a TCP connection and contain a faked HOSTNAME header part:
+It uses the value of the env variable DOCKER_HOST_NAME - which might be set to the real (bare metal)
+host name in order to see more valuable results in the fluentd collector. (The container ID gets also
+sent in the message as structured data.)
+
+Set the targeting variables FLUENT_HOST and FLUENT_SYSLOG_PORT to match your infrastructure.
+

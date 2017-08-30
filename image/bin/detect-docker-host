@@ -7,17 +7,17 @@ set -e
 GATEWAY_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
 
 DOCKER_HOST_ADDR=${DOCKER_HOST_ADDR-"$GATEWAY_IP"}
-DOCKER_HOST_NAME=${DOCKER_HOST_NAME-"$HOSTNAME"}
 
 set_container_env DOCKER_HOST_ADDR $DOCKER_HOST_ADDR
-set_container_env DOCKER_HOST_NAME $DOCKER_HOST_NAME
 
 grep -q "^docker-host" /etc/hosts &&
   error "can't add docker-host entry into /etc/hosts since it's already there" &&
   exit 1
 
 HOSTS_ENTRY="$DOCKER_HOST_ADDR docker-host"
-if [ "$DOCKER_HOST_NAME" != "$HOSTNAME" ]; then
+
+if [ ! -z "$DOCKER_HOST_NAME" ]; then
+  set_container_env DOCKER_HOST_NAME $DOCKER_HOST_NAME
   HOST_ENTRY="$HOSTS_ENTRY $DOCKER_HOST_NAME"
 fi
 

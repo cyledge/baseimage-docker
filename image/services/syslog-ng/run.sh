@@ -9,15 +9,10 @@ if [ ! -S /dev/log ]; then rm -f /dev/log; fi
 if [ ! -S /var/lib/syslog-ng/syslog-ng.ctl ]; then rm -f /var/lib/syslog-ng/syslog-ng.ctl; fi
 
 
-. /etc/os-release
-
-if [ "$VERSION_ID" == "12.04" ]; then
-  # use syslog-ng config modified for Ubuntu 12.04
-  SYSLOG_CONF=/tmp/syslog-ng.conf
-else
-  SYSLOG_CONF=/etc/syslog-ng/syslog-ng.conf
-fi
-
 
 status "starting syslog-ng daemon"
-syslog-ng -F --cfgfile=$SYSLOG_CONF --pidfile /run/syslog-ng.pid --no-caps
+
+exec syslog-ng --foreground --cfgfile=$SYSLOG_CONF --pidfile /run/syslog-ng.pid --no-caps
+
+#
+# TODO: start syslog-ng as user syslog. Currently permission issues on creation of /dev/log prevents this...

@@ -13,7 +13,10 @@ apt_install syslog-ng-core
 mkdir /etc/service/syslog-ng
 cp $SYSLOG_NG_BUILD_PATH/run.sh /etc/service/syslog-ng/run
 cp $SYSLOG_NG_BUILD_PATH/check.sh /etc/my_init.d/check-syslog-ng.sh
-cp $SYSLOG_NG_BUILD_PATH/syslog-ng.conf /etc/syslog-ng/syslog-ng.conf
+cp $SYSLOG_NG_BUILD_PATH/syslog-ng.conf /etc/syslog-ng/
+cp $SYSLOG_NG_BUILD_PATH/log-fluent.conf /etc/syslog-ng/
+cp $SYSLOG_NG_BUILD_PATH/log-stdout.conf /etc/syslog-ng/
+
 
 #
 # Create user syslog manually if not present
@@ -35,10 +38,3 @@ fi
 
 chown syslog:syslog /var/lib/syslog-ng
 
-# Set (default) target host for syslog
-if [ -z "$FLUENT_HOST" ]; then
-  set_container_env FLUENT_HOST docker-host
-fi
-if [ -z "$FLUENT_SYSLOG_PORT" ]; then
-  set_container_env FLUENT_SYSLOG_PORT 5141
-fi
