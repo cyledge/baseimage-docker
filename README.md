@@ -33,3 +33,5 @@ sent in the message as structured data.)
 
 Set the targeting variables FLUENT_HOST and FLUENT_SYSLOG_PORT to match your infrastructure.
 
+To replace the whole syslog-ng configuration set the env variable SYSLOG_CONF to a config file mounted
+as a volume into the container.
