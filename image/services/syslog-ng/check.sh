@@ -35,7 +35,7 @@ if [ -z "$SYSLOG_CONF" ]; then
   case $LOG_TO in
     "stdout")
       status "syslog is logging to stdout."
-      echo "@include \"log-stdout.conf\"" >> $SYSLOG_CONF
+      echo "@include \"conf-stdout.d/*.conf\"" >> $SYSLOG_CONF
       ;;
     "fluent")
       if [ -z "$DOCKER_HOST_NAME" ]; then
@@ -43,7 +43,7 @@ if [ -z "$SYSLOG_CONF" ]; then
         exit 1
       fi
       status "syslog is logging to fluent host $FLUENT_HOST."
-      echo "@include \"log-fluent.conf\"" >> $SYSLOG_CONF
+      echo "@include \"conf-fluent.d/*.conf\"" >> $SYSLOG_CONF
       ;;
     *)
       error "Invalid LOG_TO value: $LOG_TO"
