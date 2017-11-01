@@ -1,7 +1,7 @@
 #!/bin/bash
 
 now() {
-  echo `date +%F`
+  echo `date '+%Y-%m-%d %H:%M:%S'`
 }
 
 status() {
