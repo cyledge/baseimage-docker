@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
+. /usr/local/share/cyLEDGE/bash-library
 
 status "Installing cron..."
 
