@@ -39,8 +39,9 @@ if [ -z "$SYSLOG_CONF" ]; then
       ;;
     "fluent")
       if [ -z "$DOCKER_HOST_NAME" ]; then
-        error "logging to fluent requires env variable \"DOCKER_HOST_NAME\" to be set."
-        exit 1
+        set_container_env DOCKER_HOST_NAME $(hostname)
+        #error "logging to fluent requires env variable \"DOCKER_HOST_NAME\" to be set."
+        #exit 1
       fi
       status "syslog is logging to fluent host $FLUENT_HOST."
       echo "@include \"conf-fluent.d/*.conf\"" >> $SYSLOG_CONF
