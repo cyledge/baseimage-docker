@@ -1,4 +1,4 @@
-# cyLEDGE Base Image
+# CYLEDGE Base Image
 
 Base image to be used as source (Dockerfile:FROM) for other images.
 It is based on the well tested [Phusion Baseimage](http://phusion.github.io/baseimage-docker/).
