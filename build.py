@@ -225,7 +225,7 @@ if __name__ == '__main__':
   
   parser = argparse.ArgumentParser(description='Docker image builder.')
   parser.add_argument('--dir', '-d', default=default_build_dir, help="Build directory to use (default: ./image)")
-  parser.add_argument('--release', '-r', default="14.04", help="Ubuntu release to build from (default: 14.04)")
+  parser.add_argument('--release', '-r', default="18.04", help="Ubuntu release to build from (default: 18.04)")
   parser.add_argument('--no-pull', dest='pull', action='store_false', help="Prevent pull of Ubuntu release image before build")
   parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', help="Disable verbose output during docker build")
   
