@@ -20,6 +20,13 @@ Please dive into the nature of this image by reading the [README of phusion/base
 Please use (and maybe read through before) the `build.py` script to build this image. It handles rewriting of `Dockerfile` for different Ubuntu releases.
 
 
+    cd docker-base
+    python3 -m venv venv
+    source venv/bin/activate
+    pipenv install
+    ./build.py --help
+
+
 ## Syslog-ng
 
 The modified syslog-ng configuration logs either to stdout of the container or to a [fluentd](https://www.fluentd.org/) service.
