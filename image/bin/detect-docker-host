@@ -4,7 +4,8 @@ set -e
 . /usr/local/share/cyLEDGE/bash-library
 
 
-GATEWAY_IP=$(/sbin/ip route | awk '/default/ { print $3 }')
+GATEWAY_IP_HEX=$(awk '$2 == "00000000" {print $3}' /proc/net/route)
+GATEWAY_IP=$(printf "%d." $(echo $GATEWAY_IP_HEX | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/')
 
 DOCKER_HOST_ADDR=${DOCKER_HOST_ADDR-"$GATEWAY_IP"}
 
