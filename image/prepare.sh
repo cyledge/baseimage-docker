@@ -59,7 +59,7 @@ fi
 
 status "Install apt tools..."
 ## Install HTTPS support for APT.
-apt_install apt-transport-https ca-certificates software-properties-common
+apt_install apt-transport-https ca-certificates software-properties-common gpg-agent dirmngr
 ## Mark python3 package as manually installed - could get lost in auto-cleanup otherwise.
 apt_install python3
 
