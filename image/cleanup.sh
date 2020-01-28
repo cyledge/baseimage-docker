@@ -21,7 +21,7 @@
 # boilerplate
 set -e
 . /build/buildconfig
-. /usr/local/share/cyLEDGE/bash-library
+. /usr/local/share/cyledge/bash-library
 
 if [ "$IMAGE_BUILD_DEBUG" -ne 0 ]; then
   status "IMAGE_DEBUG enabled. Skipping cleanup..."
