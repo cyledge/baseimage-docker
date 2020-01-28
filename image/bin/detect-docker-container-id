@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-. /usr/local/share/cyLEDGE/bash-library
+. /usr/local/share/cyledge/bash-library
 
 
 CONTAINER_ID=$(cat /proc/self/cgroup | grep 'docker' | sed 's/^.*\///' | tail -n1 | cut -c 1-12)

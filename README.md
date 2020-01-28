@@ -28,6 +28,15 @@ Please use (and maybe read through before use) the `build.py` script to build th
 This script was created before build arguments were introduced in Docker. At some day `build.py` gets refactored to leverage this new feature. See [#8][i8]
 
 
+## Locale and language
+
+Regional information is set in `prepare.sh` through `ONBUILD` triggered `ARGS` as follwos:
+
+  * `TZ` (timezone, default 'Europe/Vienna')
+  * `LANGUAGE` (default 'en_US:en')
+  * `LOCALE` (a.k.a. `LANG`, default 'en_US.UTF-8')
+
+
 
 ## Syslog-ng
 

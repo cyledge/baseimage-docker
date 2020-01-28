@@ -5,8 +5,6 @@ set -e
 . /etc/lsb-release
 
 
-
-
 status "Tweaking environment..."
 
 ## Fix some issues with APT packages.
@@ -31,6 +29,12 @@ fi
 ## Switch default shell to bash
 ln -sf /bin/bash /bin/sh
 
+
+
+status "Enable Ubuntu Universe, Multiverse, and deb-src for APT main catalog."
+sed -i 's/^#\s*\(deb.*main restricted\)$/\1/g' /etc/apt/sources.list
+sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
+sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
 
 
 status "Loading APT catalog..."
@@ -72,13 +76,6 @@ apt_remove_if_installed resolvconf
 
 
 
-status "Fixing locales..."
-apt_install language-pack-en
-locale-gen en_US
-update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
-
-
-
 
 status "Setting up runit & my_init..."
 
@@ -103,8 +100,8 @@ apt_install runit
 status "Adding base-image utlities..."
 
 ## Add THE "bash library" into the system
-mkdir /usr/local/share/cyLEDGE
-cp /build/bash-library /usr/local/share/cyLEDGE/bash-library
+mkdir /usr/local/share/cyledge
+cp /build/bash-library /usr/local/share/cyledge/bash-library
 
 
 ## This tool runs a command as another user and sets $HOME.

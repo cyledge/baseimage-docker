@@ -19,27 +19,10 @@
 
 set -e
 . /build/buildconfig
-. /usr/local/share/cyLEDGE/bash-library
+. /usr/local/share/cyledge/bash-library
 . /etc/lsb-release
 
 
-## Enable Ubuntu Universe, Multiverse, and deb-src for main.
-sed -i 's/^#\s*\(deb.*main restricted\)$/\1/g' /etc/apt/sources.list
-sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
-sed -i 's/^#\s*\(deb.*multiverse\)$/\1/g' /etc/apt/sources.list
-
-
-## Fix some issues with APT packages.
-## See https://github.com/dotcloud/docker/issues/1024
-dpkg-divert --local --rename --add /sbin/initctl
-ln -sf /bin/true /sbin/initctl
-
-## Replace the 'ischroot' tool to make it always return true.
-## Prevent initscripts updates from breaking /dev/shm.
-## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
-## https://bugs.launchpad.net/launchpad/+bug/974584
-dpkg-divert --local --rename --add /usr/bin/ischroot
-ln -sf /bin/true /usr/bin/ischroot
 
 
 if [ "$IMAGE_BUILD_DEBUG" -eq 0 ]; then
@@ -57,20 +40,35 @@ else
 fi
 
 
+status "Installing locale tools..."
+
+if [ ${LOCALE:0:5} != "en_US" ]
+then
+  # install language pack for non-default languages/locales
+  apt_install language-pack-${LOCALE:0:2}
+else
+  echo "locales locales/default_environment_locale string $LOCALE" | debconf-set-selections
+  echo "locales locales/locales_to_be_generated string $LOCALE ${LOCALE##*.}" | debconf-set-selections
+  apt_install locales
+fi
+apt_install tzdata
+update-locale LANG=$LOCALE
+
+status "Setting locale to $LOCALE"
+echo -n $LOCALE > /etc/container_environment/LANG
+
+status "Setting LANGUAGE to $LANGUAGE"
+echo -n $LANGUAGE > /etc/container_environment/LANGUAGE
+
+status "Setting timezone to $TZ"
+ln -sf "/usr/share/zoneinfo/$TZ" /etc/localtime
+
+
 status "Install apt tools..."
 ## Install HTTPS support for APT.
 apt_install apt-transport-https ca-certificates software-properties-common gpg-agent dirmngr
 ## Mark python3 package as manually installed - could get lost in auto-cleanup otherwise.
 apt_install python3
-
-
-## Fix locale.
-apt_install language-pack-en
-locale-gen en_US
-update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
-echo -n en_US.UTF-8 > /etc/container_environment/LANG
-echo -n en_US.UTF-8 > /etc/container_environment/LC_CTYPE
-
 
 ## Install a syslog daemon and logrotate.
 IMAGE_DISABLE_SYSLOG=${IMAGE_DISABLE_SYSLOG:-0}
