@@ -70,6 +70,10 @@ apt_install apt-transport-https ca-certificates software-properties-common gpg-a
 ## Mark python3 package as manually installed - could get lost in auto-cleanup otherwise.
 apt_install python3
 
+## It's the 21st century - let's go multithreaded compression tools!
+status "Install compressions tools for SMT systems..."
+apt_install pbzip2 pigz
+
 ## Install a syslog daemon and logrotate.
 IMAGE_DISABLE_SYSLOG=${IMAGE_DISABLE_SYSLOG:-0}
 [ "$IMAGE_DISABLE_SYSLOG" -eq 0 ] && /build/services/syslog-ng/install.sh || true
