@@ -72,7 +72,7 @@ apt_install python3
 
 ## It's the 21st century - let's go multithreaded compression tools!
 status "Install compressions tools for SMT systems..."
-apt_install pbzip2 pigz
+apt_install pbzip2 pigz pxz
 
 ## Install a syslog daemon and logrotate.
 IMAGE_DISABLE_SYSLOG=${IMAGE_DISABLE_SYSLOG:-0}
