@@ -116,11 +116,13 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_f
     nocache= not use_cache
     )
 
+  before_last_line = None
   last_line = None
   for line in build_output:
     output = json.loads(line.decode('UTF-8'))
     if "stream" in output:
       logger.debug(output["stream"].rstrip())
+      before_last_line = last_line
       last_line = output["stream"]
     if "error" in output:
       logger.error(output["error"].rstrip())
@@ -130,7 +132,8 @@ def docker_build( build_dir, tag="cyledge/base", dockerfile="Dockerfile", pull_f
     srch = r'sha256:([0-9a-f]{12})[0-9a-f]+'
   else:
     srch = r'Successfully built ([0-9a-f]{12})'
-  match = re.search(srch, last_line)
+    #srch = r'Successfully tagged %s' % tag
+  match = re.search(srch, before_last_line)
   if not match:
     raise RuntimeError()
   else:
