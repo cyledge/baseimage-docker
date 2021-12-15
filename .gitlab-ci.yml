@@ -1,0 +1,37 @@
+
+stages:
+  - build
+image: docker:latest
+services:
+  - docker:dind
+before_script:
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+base20.04:
+  stage: build
+  variables:
+    UBUNTU_VERSIONS: 18.04 20.04
+    IMAGE: "$CI_REGISTRY_IMAGE/base"
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_SLUG" != "main" ]
+      then
+        REF_TAG_SUFFIX="-${CI_COMMIT_REF_SLUG}"
+      fi
+    - |
+      for UBUNTU_VERSION in $UBUNTU_VERSIONS
+      do
+        TAG="${UBUNTU_VERSION}${REF_TAG_SUFFIX}"
+        echo -e "section_start:`date +%s`:build_${TAG}[collapsed=true]\r\e[0KBuild & Pfush ${IMAGE}:${TAG}"
+        docker build --pull --build-arg=UBUNTU_VERSION="${UBUNTU_VERSION}" -t "${IMAGE}:${TAG}" image/
+        docker push "${IMAGE}:${TAG}"
+        echo -e "section_end:`date +%s`:build_${TAG}\r\e[0K"
+      done
+    - |
+      if [ "$CI_COMMIT_REF_SLUG" == "main" ]
+      then
+        echo -e "section_start:`date +%s`:build_latest[collapsed=true]\r\e[0KPfush ${IMAGE}:latest"
+        docker tag "${IMAGE}:${TAG}" "${IMAGE}:latest"
+        docker push "${IMAGE}:latest"
+        echo -e "section_end:`date +%s`:build_latest\r\e[0K"
+      fi
