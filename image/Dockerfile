@@ -1,5 +1,8 @@
-FROM ubuntu:18.04
-MAINTAINER CYLEDGE <dev@cyledge.com>
+ARG UBUNTU_VERSION="20.04"
+FROM ubuntu:$UBUNTU_VERSION
+
+LABEL maintainer="CYLEDGE Development"
+LABEL repository="https://gitlab.com/cyledge/images"
 
 ADD . /build
 
