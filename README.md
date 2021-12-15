@@ -15,18 +15,12 @@ Please dive into the nature of this image by reading the [README of phusion/base
 
 ## Building
 
-Please use (and maybe read through before use) the `build.py` script to build this image. It handles rewriting of `Dockerfile` for different Ubuntu releases.
 
 
-    cd docker-base
-    python3 -m venv venv
-    source venv/bin/activate
-    pipenv install
-    ./build.py --help
+    cd $base_dir
+    docker build --build-arg=UBUNTU_VERSION="20.04" image/
 
     
-This script was created before build arguments were introduced in Docker. At some day `build.py` gets refactored to leverage this new feature. See [#8][i8]
-
 
 ## Locale and language
 
@@ -56,4 +50,3 @@ as a volume into the container.
 
 
 
-[i8]: https://github.com/cyledge/baseimage-docker/issues/8
