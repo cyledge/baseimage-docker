@@ -30,14 +30,5 @@ then
   useradd -r -M -l -g syslog -s /bin/false syslog 
 fi
 
-#
-# Syslog-ng version of Ubuntu 12.04 requires older config file version.
-#
-if [ $DISTRIB_RELEASE == "12.04" ]
-then
-  echo "downgrading syslog-ng.conf version header to 3.3 (required for Ubuntu 12.04)"
-  sed "s/^@version: [[:digit:]].[[:digit:]]/@version: 3.3/" -i /etc/syslog-ng/syslog-ng.conf
-fi
-
 chown syslog:syslog /var/lib/syslog-ng
 

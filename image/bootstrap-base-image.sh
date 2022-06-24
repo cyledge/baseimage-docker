@@ -43,29 +43,6 @@ status "Loading APT catalog..."
 apt_update
 
 
-if [ $DISTRIB_RELEASE == "12.04" ]
-then
-  ## Install python3 (which is not installed by default in Ubuntu 12.04)
-  status "Installing python..."
-  apt_install python3 python-anyjson
-fi
-
-if [ $DISTRIB_RELEASE == "16.04" ]
-then
-  ## add apt-utils to suprress warnings while running apt
-  apt_install apt-utils 2> /dev/null
-  
-  ## Mark python3 as installed (otherwise it would get purged by final cleanup since
-  ## it was installed as dependency of other packages)
-  ##
-  ## command ip is not present in Ubuntu 16.04. But it's so handy!!
-  ##
-  status "Installing python..."
-  apt_install python3 iproute2
-fi
-
-
-
 status "Installing apt tools useful to build images..."
 apt_install apt-transport-https ca-certificates software-properties-common
 
