@@ -7,7 +7,7 @@ services:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
-base20.04:
+base:
   stage: build
   variables:
     UBUNTU_VERSIONS: 18.04 20.04
