@@ -42,13 +42,13 @@ fi
 
 status "Installing locale tools..."
 
+echo "locales locales/default_environment_locale string $LOCALE" | debconf-set-selections
+echo "locales locales/locales_to_be_generated string $LOCALE ${LOCALE##*.}" | debconf-set-selections
 if [ ${LOCALE:0:5} != "en_US" ]
 then
   # install language pack for non-default languages/locales
-  apt_install language-pack-${LOCALE:0:2}
+  apt_install language-pack-${LOCALE:0:2} locales
 else
-  echo "locales locales/default_environment_locale string $LOCALE" | debconf-set-selections
-  echo "locales locales/locales_to_be_generated string $LOCALE ${LOCALE##*.}" | debconf-set-selections
   apt_install locales
 fi
 apt_install tzdata
