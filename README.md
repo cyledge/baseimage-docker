@@ -60,4 +60,9 @@ Sub-Images may place their custom syslog-ng configuration pieces in following di
   Used when LOG_TO=fluent
 
 
+## Vacuum /tmp
 
+If cron is enabled a script is run hourly to check /tmp for free space. If /tmp is a mount point (e.g. `docker run --tmpfs /tmp ...`) and
+the available space is below `$TMP_MIN_AVAIL_SPACE_PCT` (default is 25). The scripts removes old files until the available space is above the threshold.
+Only files with access times older than `$TMP_RM_IDLE_DAYS` are removed.  
+This cron job can be disabled during image build time with the build arg `IMAGE_DISABLE_TMP_VACUUM=1`.

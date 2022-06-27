@@ -22,4 +22,5 @@ rm -f /etc/cron.weekly/fstrim
 
 
 # install vacuum-tmp cronjob
-cp /build/bin/vacuum-tmp /etc/cron.hourly/vacuum-tmp
+IMAGE_DISABLE_TMP_VACUUM=${IMAGE_DISABLE_TMP_VACUUM:-0}
+[ "$IMAGE_DISABLE_TMP_VACUUM" -eq 0 ] && cp /build/bin/vacuum-tmp /etc/cron.hourly/vacuum-tmp || true
