@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+TMP_MIN_AVAIL_SPACE_PCT=${TMP_MIN_AVAIL_SPACE_PCT:-20}
+TMP_RM_IDLE_DAYS=${TMP_RM_IDLE_DAYS:-7}
+
+if [ "$(df --output=target /tmp | tail -n1)" == "/" ]
+then
+    # /tmp is ordinary directory of /
+    # only operate on explicitly mounted /tmp (via `docker run --tmpfs /tmp ...` or similar)
+    exit 0
+fi
+
+function tmp_available(){
+    TMP_SITUATION=($(df -B1 --output=size,avail /tmp | tail -n1 | awk -F' ' '{print $1} {print $2}'))
+    TMP_BYTES_TOTAL=${TMP_SITUATION[0]}
+    TMP_BYTES_AVAILABLE=${TMP_SITUATION[1]}
+    echo "$TMP_BYTES_AVAILABLE*100/$TMP_BYTES_TOTAL" | bc
+}
+
+function old_tmp_file(){
+    old_files=($(find /tmp -type f -atime +$TMP_RM_IDLE_DAYS -printf '%A@\t%p\n' 2>/dev/null | sort -nr | cut -f2))
+    echo $old_files | head -n1
+}
+
+function log(){
+    if [ -t 0 ]
+    then
+        echo $1
+    else
+        logger -p local0.notice -t vacuum-tmp $1
+    fi
+}
+
+
+if (( $(tmp_available) < $TMP_MIN_AVAIL_SPACE_PCT ))
+then
+    log "Available space of /tmp too low: $(tmp_available)%"
+    old_file=$(old_tmp_file)
+    if [ -z "$old_file" ]
+    then
+        log "Can't vacuum /tmp - no old files found to remove"
+        break
+    fi
+    while true
+    do
+    log "removing file $old_file"
+    rm $old_file
+    old_file=$(old_tmp_file)
+    if (( $(tmp_available) >= $TMP_MIN_AVAIL_SPACE_PCT ))
+    then
+        log "Enough space freed - $(tmp_available)% available now"
+        break
+    fi
+    if [ -z "$old_file" ]
+    then
+        log "No more files found to remove - $(tmp_available)% available now"
+        break
+    fi
+    done
+fi
+
+
