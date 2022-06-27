@@ -23,9 +23,15 @@ set -e
 . /etc/lsb-release
 
 
+if [ -f /build/prepared ]; then
+  status "/build/prepare.sh executed already. Preventing repeated execution."
+  exit 0
+else
+  touch /build/prepared
+fi
 
 
-if [ "$IMAGE_BUILD_DEBUG" -eq 0 ]; then
+if (( IMAGE_BUILD_DEBUG == 0)); then
 
   status "Loading APT catalog..."
   apt_update
@@ -81,3 +87,6 @@ IMAGE_DISABLE_SYSLOG=${IMAGE_DISABLE_SYSLOG:-0}
 ## Install cron daemon.
 IMAGE_DISABLE_CRON=${IMAGE_DISABLE_CRON:-0}
 [ "$IMAGE_DISABLE_CRON" -eq 0 ] && /build/services/cron/install.sh || true
+
+
+[ "$IMAGE_BUILD_DEBUG" -eq 0 ] && echo -e " +++++ \n +++++  Don't forget to run /build/cleanup.sh at the end of your Dockerfile\n +++++ " || true

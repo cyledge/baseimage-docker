@@ -23,7 +23,7 @@ set -e
 . /build/buildconfig
 . /usr/local/share/cyledge/bash-library
 
-if [ "$IMAGE_BUILD_DEBUG" -ne 0 ]; then
+if (( IMAGE_BUILD_DEBUG != 0)); then
   status "IMAGE_DEBUG enabled. Skipping cleanup..."
   exit 0
 fi
