@@ -22,12 +22,6 @@ ln -sf /bin/true /sbin/initctl
 ln -sf /bin/true /usr/bin/ischroot
 
 
-## Temporarily disable dpkg fsync to make building faster.
-if [[ ! -e /etc/dpkg/dpkg.cfg.d/docker-apt-speedup ]]; then
-	echo force-unsafe-io > /etc/dpkg/dpkg.cfg.d/docker-apt-speedup
-fi
-
-
 ## Switch default shell to bash
 ln -sf /bin/bash /bin/sh
 
