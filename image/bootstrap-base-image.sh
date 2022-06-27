@@ -38,7 +38,7 @@ apt_update
 
 
 status "Installing apt tools useful to build images..."
-apt_install apt-transport-https ca-certificates software-properties-common
+apt_install apt-transport-https ca-certificates software-properties-common apt-utils
 
 
 
