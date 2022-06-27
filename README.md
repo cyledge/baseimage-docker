@@ -48,5 +48,16 @@ Set the targeting variables FLUENT_HOST and FLUENT_SYSLOG_PORT to match your inf
 To replace the whole syslog-ng configuration set the env variable SYSLOG_CONF to a config file mounted
 as a volume into the container.
 
+Sub-Images may place their custom syslog-ng configuration pieces in following directories:
+
+* `/etc/syslog-ng/conf.d/*.conf`
+  This files will be included every time
+
+* `/etc/syslog-ng/conf-stdout.d/*.conf`
+  Such files are used if LOG_TO=stdout
+
+* `/etc/syslog-ng/conf-fluent.d/*.conf`
+  Used when LOG_TO=fluent
+
 
 
