@@ -25,4 +25,3 @@ CMD ["/sbin/my_init"]
 ONBUILD ARG LOCALE="en_US.UTF-8" \
             IMAGE_BUILD_DEBUG=0
 
-ONBUILD RUN /build/prepare.sh
