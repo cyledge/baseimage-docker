@@ -75,7 +75,9 @@ status "Adding base-image utlities..."
 ## Add THE "bash library" into the system
 mkdir /usr/local/share/protobyte
 cp /build/bash-library /usr/local/share/protobyte/bash-library
-
+# backward compatibility:
+mkdir /usr/local/share/cyledge
+ln -s /usr/local/share/protobyte/bash-library /usr/local/share/cyledge/bash-library
 
 ## This tool runs a command as another user and sets $HOME.
 cp /build/bin/setuser /sbin/setuser
