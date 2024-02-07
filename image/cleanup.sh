@@ -5,9 +5,9 @@
 # This script expects /build/prepare.sh to be run
 # before.
 #
-# Usage in cyledge/base based Dockerfile:
+# Usage in registry.gitlab.com/cyledge/image/base based Dockerfile:
 #
-#     FROM cyledge/base
+#     FROM registry.gitlab.com/cyledge/image/base
 #     ...
 #     RUN /build/prepare.sh
 #     ...
@@ -21,7 +21,7 @@
 # boilerplate
 set -e
 . /build/buildconfig
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 
 if (( IMAGE_BUILD_DEBUG != 0)); then
   status "IMAGE_DEBUG enabled. Skipping cleanup..."

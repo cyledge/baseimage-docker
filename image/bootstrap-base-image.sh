@@ -73,8 +73,8 @@ apt_install runit
 status "Adding base-image utlities..."
 
 ## Add THE "bash library" into the system
-mkdir /usr/local/share/cyledge
-cp /build/bash-library /usr/local/share/cyledge/bash-library
+mkdir /usr/local/share/protobyte
+cp /build/bash-library /usr/local/share/protobyte/bash-library
 
 
 ## This tool runs a command as another user and sets $HOME.

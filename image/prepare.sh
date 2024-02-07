@@ -4,9 +4,9 @@
 # Use this script to prepare a docker build process.
 # This script expects /build/cleanup.sh to be run at the end of the build process.
 #
-# Usage in cyledge/base based Dockerfile:
+# Usage in registry.gitlab.com/cyledge/image/base based Dockerfile:
 #
-#     FROM cyledge/base
+#     FROM registry.gitlab.com/cyledge/image/base
 #     ...
 #     RUN /build/prepare.sh
 #     ...
@@ -19,7 +19,7 @@
 
 set -e
 . /build/buildconfig
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 . /etc/lsb-release
 
 
