@@ -75,6 +75,8 @@ status "Install apt tools..."
 apt_install apt-transport-https ca-certificates software-properties-common gpg-agent dirmngr
 ## Mark python3 package as manually installed - could get lost in auto-cleanup otherwise.
 apt_install python3
+## envsubst tool is handy
+apt_install gettext-base
 
 ## It's the 21st century - let's go multithreaded compression tools!
 status "Install compressions tools for SMT systems..."
