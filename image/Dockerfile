@@ -1,7 +1,7 @@
-ARG UBUNTU_VERSION="20.04"
+ARG UBUNTU_VERSION="22.04"
 FROM ubuntu:$UBUNTU_VERSION
 
-LABEL maintainer="CYLEDGE Development"
+LABEL maintainer="Protobyte Maintainers"
 LABEL repository="https://gitlab.com/cyledge/image/base"
 
 ARG DEBIAN_FRONTEND="noninteractive" \
