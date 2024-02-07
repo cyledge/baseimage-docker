@@ -1,5 +1,5 @@
 #!/bin/sh
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 
 status "starting cron daemon"
 

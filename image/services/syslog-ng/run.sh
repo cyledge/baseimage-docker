@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 
 # If /dev/log is either a named pipe or it was placed there accidentally,
 # e.g. because of the issue documented at https://github.com/phusion/baseimage-docker/pull/25,

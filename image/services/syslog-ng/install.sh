@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 . /build/buildconfig
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 . /etc/lsb-release
 
 status "Installing syslog-ng..."

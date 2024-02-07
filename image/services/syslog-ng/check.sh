@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-. /usr/local/share/cyledge/bash-library
+. /usr/local/share/protobyte/bash-library
 
 
 # Set (default) target host for syslog
